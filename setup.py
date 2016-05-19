@@ -14,11 +14,11 @@ if sys.version_info < (3, 0):
     pyver_tests_require.append('mock==1.0.1')
 
 setup(
-    name='simple-salesforce',
+    name='simple-salesforce-ext',
     version='0.68.1',
     author='Nick Catalano',
-    packages=['simple_salesforce',],
-    url='https://github.com/heroku/simple-salesforce',
+    packages=['simple_salesforce_ext',],
+    url='https://github.com/ElenaHenderson/simple-salesforce-ext',
     license='Apache 2.0',
     description=("Simple Salesforce is a basic Salesforce.com REST API client. "
         "The goal is to provide a very low-level interface to the API, "
