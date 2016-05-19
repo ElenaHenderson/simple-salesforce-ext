@@ -15,9 +15,9 @@ if sys.version_info < (3, 0):
 
 setup(
     name='simple-salesforce-ext',
-    version='0.68.1',
+    version='0.1',
     author='Nick Catalano',
-    packages=['simple_salesforce_ext',],
+    packages=['simple_salesforce'],
     url='https://github.com/ElenaHenderson/simple-salesforce-ext',
     license='Apache 2.0',
     description=("Simple Salesforce is a basic Salesforce.com REST API client. "
