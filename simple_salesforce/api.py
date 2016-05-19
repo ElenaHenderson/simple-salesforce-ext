@@ -35,7 +35,7 @@ class Salesforce(object):
             self, username=None, password=None, security_token=None,
             session_id=None, instance=None, instance_url=None,
             organizationId=None, sandbox=False, version=DEFAULT_API_VERSION,
-            proxies=None, session=None):
+            proxies=None, session=None, timeout=None):
         """Initialize the instance with the given parameters.
 
         Available kwargs
@@ -74,6 +74,7 @@ class Salesforce(object):
         self.sf_version = version
         self.sandbox = sandbox
         self.proxies = proxies
+        self.timeout = timeout
 
         # Determine if the user wants to use our username/password auth or pass
         # in their own information
@@ -145,7 +146,8 @@ class Salesforce(object):
         """Describes all available objects
         """
         url = self.base_url + "sobjects"
-        result = self.request.get(url, headers=self.headers)
+        result = self.request.get(url, headers=self.headers,
+                                  timeout=self.timeout)
         if result.status_code != 200:
             raise SalesforceGeneralError(url,
                                          'describe',
@@ -179,9 +181,9 @@ class Salesforce(object):
 
         return SFType(
             name, self.session_id, self.sf_instance, self.sf_version,
-            self.proxies)
+            self.proxies, self.timeout)
 
-    # User utlity methods
+    # User utility methods
     def set_password(self, user, password):
         """Sets the password of a user
 
@@ -198,7 +200,8 @@ class Salesforce(object):
         params = {'NewPassword': password}
 
         result = self.request.post(
-            url, headers=self.headers, data=json.dumps(params))
+            url, headers=self.headers, timeout=self.timeout,
+            data=json.dumps(params))
 
         # salesforce return 204 No Content when the request is successful
         if result.status_code != 200 and result.status_code != 204:
@@ -244,7 +247,8 @@ class Salesforce(object):
         """
 
         url = self.base_url + path
-        result = self.request.get(url, headers=self.headers, params=params)
+        result = self.request.get(url, headers=self.headers,
+                                  timeout=self.timeout, params=params)
         if result.status_code != 200:
             raise SalesforceGeneralError(url,
                                          path,
@@ -270,7 +274,8 @@ class Salesforce(object):
 
         # `requests` will correctly encode the query string passed as `params`
         params = {'q': search}
-        result = self.request.get(url, headers=self.headers, params=params)
+        result = self.request.get(url, headers=self.headers,
+                                  timeout=self.timeout, params=params)
         if result.status_code != 200:
             raise SalesforceGeneralError(url,
                                          'search',
@@ -309,7 +314,8 @@ class Salesforce(object):
         params = {'q': query}
         # `requests` will correctly encode the query string passed as `params`
         result = self.request.get(
-            url, headers=self.headers, params=params, **kwargs)
+            url, headers=self.headers, timeout=self.timeout, params=params,
+            **kwargs)
 
         if result.status_code != 200:
             _exception_handler(result)
@@ -340,7 +346,8 @@ class Salesforce(object):
         else:
             url = self.base_url + 'query/{next_record_id}'
             url = url.format(next_record_id=next_records_identifier)
-        result = self.request.get(url, headers=self.headers, **kwargs)
+        result = self.request.get(url, headers=self.headers,
+                                  timeout=self.timeout, **kwargs)
 
         if result.status_code != 200:
             _exception_handler(result)
@@ -417,7 +424,7 @@ class Salesforce(object):
         Returns a `requests.result` object.
         """
         result = self.request.request(
-            method, url, headers=self.headers, **kwargs)
+            method, url, headers=self.headers, timeout=self.timeout, **kwargs)
 
         if result.status_code >= 300:
             _exception_handler(result)
@@ -431,7 +438,7 @@ class SFType(object):
     # pylint: disable=too-many-arguments
     def __init__(
             self, object_name, session_id, sf_instance, sf_version='27.0',
-            proxies=None):
+            proxies=None, timeout=None):
         """Initialize the instance with the given parameters.
 
         Arguments:
@@ -447,6 +454,7 @@ class SFType(object):
         self.name = object_name
         self.request = requests.Session()
         self.request.proxies = proxies
+        self.timeout = timeout
 
         self.base_url = (
             u'https://{instance}/services/data/v{sf_version}/sobjects'
@@ -623,7 +631,8 @@ class SFType(object):
             'Authorization': 'Bearer ' + self.session_id,
             'X-PrettyPrint': '1'
         }
-        result = self.request.request(method, url, headers=headers, **kwargs)
+        result = self.request.request(method, url, headers=headers,
+                                      timeout=self.timeout, **kwargs)
 
         if result.status_code >= 300:
             _exception_handler(result, self.name)
