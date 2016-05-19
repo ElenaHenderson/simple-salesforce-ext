@@ -2,6 +2,8 @@
 Simple Salesforce
 *****************
 
+Note that the original code was exported from https://github.com/neworganizing/simple-salesforce
+
 .. image:: https://api.travis-ci.org/heroku/simple-salesforce.svg?branch=master
    :target: https://travis-ci.org/heroku/simple-salesforce
 
