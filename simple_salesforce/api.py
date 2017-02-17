@@ -455,6 +455,11 @@ class SFType(object):
         self.request = requests.Session()
         self.request.proxies = proxies
         self.timeout = timeout
+        self.headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + self.session_id,
+            'X-PrettyPrint': '1'
+        }
 
         self.base_url = (
             u'https://{instance}/services/data/v{sf_version}/sobjects'
@@ -626,12 +631,7 @@ class SFType(object):
 
         Returns a `requests.result` object.
         """
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + self.session_id,
-            'X-PrettyPrint': '1'
-        }
-        result = self.request.request(method, url, headers=headers,
+        result = self.request.request(method, url, headers=self.headers,
                                       timeout=self.timeout, **kwargs)
 
         if result.status_code >= 300:
